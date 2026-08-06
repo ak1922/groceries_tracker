@@ -4,5 +4,6 @@ db.sqlite3
 
 .env
 venv_*
+__pycache__/
 
 delete.sh

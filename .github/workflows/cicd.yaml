@@ -1,32 +1,83 @@
-name: Release Charts
+name: Family Groceries App CICD Pipeline
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'charts/**' # Runs only when you make changes to your Helm charts
+    push:
+        branches:
+            -   main
+        paths:
+            -   'charts/**'
+            -   'config/**'
+            -   'users/**'
+            -   'k8s/**'
+            -   'manage.py'
+            -   'Dockerfile'
+            -   'requirements.txt'
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    # Job 1: Test and validate Helm charts
+    lint-charts:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v4
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@://github.com"
+            -   name: Install Helm
+                uses: azure/setup-helm@v4
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4
+            -   name: Lint Helm Charts
+                run: |
+                    helm lint charts/groceries-app
+                    
 
-      - name: Run Chart Releaser
-        uses: helm/chart-releaser-action@v1.6.0
-        with:
-          config: .github/cr.yaml
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    # Job 2: Build Django app and push to Docker Hub
+    build-and-push-docker:
+        runs-on: ubuntu-latest
+        needs: lint-charts
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v4
+
+            -   name: Login To Docker Hub
+                uses: docker/login-action@v3
+                with:
+                    username: ${{ secrets.DOCKERHUB_USERNAME }}
+                    password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+            -   name: Build and Push Docker Image
+                uses: docker/build-push-action@v5
+                with:
+                    context: .
+                    push: true
+                    tags: |
+                        ${{ secrets.DOCKERHUB_USERNAME }}/groceries:${{ github.sha }}
+                        ${{ secrets.DOCKERHUB_USERNAME }}/groceries:latest
+
+    # Job 3: Inject tag and Release Helm Charts to GitHub Pages
+    release-charts:
+        runs-on: ubuntu-latest
+        needs: build-and-push-docker
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
+
+            -   name: Configure Git
+                run: |
+                    git config user.name "$GITHUB_ACTOR"
+                    git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+            -   name: Update Helm Image Tag
+                run: |
+                    yq -i '.image.tag = "${{ github.sha }}"' charts/groceries-app/values.yaml
+                    yq -i '.appVersion = "${{ github.sha }}"' charts/groceries-app/Chart.yaml
+
+            -   name: Install Helm
+                uses: azure/setup-helm@v4
+
+            -   name: Run Chart Releaser
+                uses: helm/chart-releaser-action@v1.6.0
+                with:
+                    config: .github/cr.yaml
+                env:
+                    CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
