@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Household Executive Console - GroceryOps{% endblock %}
+
+{% block content %}
+<!-- Executive Page Header Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 bg-dark text-white rounded-3 shadow-sm d-flex justify-content-between align-items-center">
+            <div>
+                <span class="text-uppercase tracking-wider small text-white-50 fw-bold">Household Operations Tower</span>
+                <h2 class="fw-bold mb-0">Family Group: {{ user.family_group.name }}</h2>
+            </div>
+            <a href="#" class="btn btn-primary fw-semibold shadow-sm">+ Log New Shopping Trip</a>
+        </div>
+    </div>
+</div>
+
+<!-- Key Performance Analytics Cards Grid Matrix -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+                <span class="text-muted small fw-medium">Monthly Grocery Expenditures</span>
+                <h2 class="fw-bold text-primary mt-1 mb-0">${{ total_monthly_spend|floatformat:2 }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+                <span class="text-muted small fw-medium">Total Family Transactions</span>
+                <h2 class="fw-bold text-dark mt-1 mb-0">{{ current_month_trips_count }} Trips Logged</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+                <span class="text-muted small fw-medium">Active Household Members</span>
+                <h2 class="fw-bold text-success mt-1 mb-0">{{ family_members_count }} Profiles</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Advanced Analytical Transaction Table Log -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-3">Family Transaction Audit Logs</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr class="small text-uppercase text-secondary">
+                                <th>Date Stamp</th>
+                                <th>Local Store Vendor</th>
+                                <th>Purchasing Buyer</th>
+                                <th>Financial Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for trip in recent_trips %}
+                            <tr>
+                                <td class="text-secondary small">{{ trip.date }}</td>
+                                <td class="fw-semibold text-dark">{{ trip.store.name }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ trip.buyer.username }}</span></td>
+                                <td class="fw-bold text-dark">${{ trip.total_cost }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-5 small">No transaction records logged yet for this family group.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side Sidebar: Profile Card Info -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-3">Active Family Profiles</h5>
+                <ul class="list-group list-group-flush">
+                    {% for member in user.family_group.members.all %}
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center py-2">
+                        <div>
+                            <p class="mb-0 fw-semibold text-dark small">{{ member.username }}</p>
+                            <span class="text-muted extra-small text-secondary" style="font-size: 0.75rem;">{{ member.email }}</span>
+                        </div>
+                        <span class="badge {% if member.role == 'HEAD' %}bg-danger{% else %}bg-secondary{% endif %} small">
+                            {{ member.get_role_display }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Account Security Shortcuts -->
+        <div class="card border-0 shadow-sm rounded-3 bg-light">
+            <div class="card-body p-4">
+                <h6 class="fw-bold text-dark mb-2">Account Management Shortcuts</h6>
+                <a href="{% url 'users:password_change' %}" class="btn btn-sm btn-outline-secondary w-100 fw-semibold">
+                    Change Security Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
