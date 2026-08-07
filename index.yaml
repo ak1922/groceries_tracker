@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  groceries-app:
+  - apiVersion: v2
+    appVersion: 8e550dd8d019245be82f1db180a70b6d79601f0e
+    created: "2026-08-07T23:27:26.075286495Z"
+    description: A Helm chart for Kubernetes
+    digest: f72be251774966539bd8bb1f8e721f5f7b662ab0b58803af95054fa9937b02c8
+    name: groceries-app
+    type: application
+    urls:
+    - https://github.com/ak1922/groceries_tracker/releases/download/groceries-app-0.1.0/groceries-app-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-08-07T23:27:26.075292205Z"
