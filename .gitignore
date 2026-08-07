@@ -1,9 +1,10 @@
 db.sqlite3
 .idea/
 .vscode/
+NOTES.md
 
 .env
 venv_*
-__pycache__/
+**/__pycache__/
 
 delete.sh

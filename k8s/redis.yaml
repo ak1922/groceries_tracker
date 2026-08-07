@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: groceries-redis-cluster
+    namespace: groceries
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: groceries-redis
+    template:
+        metadata:
+            labels:
+                app: groceries-redis
+        spec:
+            containers:
+                -   name: groceries-redis-container
+                    image: redis:7-alpine
+                    ports:
+                        -   containerPort: 6379
+                            name: redis-port
+                    resources:
+                        limits:
+                            cpu: "500m"
+                            memory: "512Mi"
+                        requests:
+                            cpu: "200m"
+                            memory: "256Mi"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: groceries-redis-service
+    namespace: groceries
+spec:
+    ports:
+        -   port: 6379
+            targetPort: 6379
+    selector:
+        app: groceries-redis
+    type: ClusterIP

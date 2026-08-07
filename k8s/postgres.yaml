@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: groceries-postgres
+    namespace: groceries
+spec:
+    serviceName: groceries-postgres-internal
+    replicas: 1
+    selector:
+        matchLabels:
+            app: groceries-postgres
+    template:
+        metadata:
+            labels:
+                app: groceries-postgres
+        spec:
+            containers:
+                -   name: groceries-postgres
+                    image: postgres:16-alpine
+                    imagePullPolicy: Always
+                    envFrom:
+                        -   secretRef:
+                                name: groceries-postgres-secret
+                    volumeMounts:
+                        -   mountPath: /var/lib/postgresql/data
+                            name: postgresdb-storage
+                        -   mountPath: /docker-entrypoint-initdb.d
+                            name: postgres-init-script
+                    ports:
+                        -   containerPort: 5432
+                            name: dbport
+            volumes:
+                -   name: postgresdb-storage
+                    persistentVolumeClaim:
+                        claimName: groceries-postgres-pvc
+                -   name: postgres-init-script
+                    configMap:
+                        name: groceries-postgres-config

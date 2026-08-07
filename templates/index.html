@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center justify-content-center py-5">
+    <div class="col-lg-7 text-center">
+        <h1 class="display-4 fw-bold text-dark mb-3">Family Grocery Expense Tracking Made Simple</h1>
+        <p class="lead text-secondary mb-4">
+            Coordinate weekly store trips, profile household budgets, and visualize grocery spend distributions across consecutive months seamlessly.
+        </p>
+        {% if not user.is_authenticated %}
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{% url 'users:register' %}" class="btn btn-primary btn-lg px-4 gap-3 fw-semibold">Register Household</a>
+                <a href="" class="btn btn-outline-secondary btn-lg px-4 fw-semibold">Access Dashboard</a>
+            </div>
+        {% else %}
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{% url 'shopping:dashboard' %}" class="btn btn-primary btn-lg px-4 fw-semibold">Enter Workspace Console</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

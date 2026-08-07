@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Logged Out - GroceryOps{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-5 text-center">
+        <div class="p-5 bg-white rounded shadow-sm">
+            <div class="display-1 text-muted mb-3">🔒</div>
+            <h3 class="fw-bold text-dark">Securely Logged Out</h3>
+            <p class="text-secondary small mb-4">You have been safely disconnected from your household data session.</p>
+            <a href="{% url 'users:login' %}" class="btn btn-primary px-4 fw-semibold shadow-sm">
+                Log Back In
+            </a>
+            <a href="{% url 'index' %}" class="btn btn-link text-decoration-none small ms-2">
+                Go to Homepage
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
