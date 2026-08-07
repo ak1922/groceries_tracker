@@ -51,3 +51,17 @@ class DualAuthenticationForm(AuthenticationForm):
         label="Password",
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '••••••••'})
     )
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    """
+    Handles user profile edits and filters file type uploads safely.
+    """
+    class Meta:
+        model = AppUser
+        fields = ('username', 'email', 'profile_photo')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'profile_photo': forms.FileInput(attrs={'class': 'form-control'}),
+        }

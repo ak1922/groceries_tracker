@@ -8,6 +8,7 @@ on:
             -   'charts/**'
             -   'config/**'
             -   'users/**'
+            -   'shopping/**'
             -   'k8s/**'
             -   'manage.py'
             -   'Dockerfile'

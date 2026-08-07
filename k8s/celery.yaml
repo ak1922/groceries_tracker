@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: groceries-celery-worker
+    namespace: groceries
+    labels:
+        app: grocery-celery-worker
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: grocery-celery-worker
+    template:
+        metadata:
+            labels:
+                app: grocery-celery-worker
+        spec:
+            containers:
+                -   name: groc-celery-worker
+                    image: akwasi14/groceries:latest
+                    command: ["celery", "-A", "config", "worker", "--loglevel=info", "--concurrency=4"]
+                    envFrom:
+                        -   configMapRef:
+                                name: groceries-django-config
+                    env:
+                        -   name: DB_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_USER
+                                    name: groceries-postgres-secret
+                        -   name: DB_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_PASSWORD
+                                    name: groceries-postgres-secret
+                    resources:
+                        limits:
+                          cpu: "500m"
+                          memory: "512Mi"
+                        requests:
+                          cpu: "200m"
+                          memory: "256Mi"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: groceries-celery-beat
+    namespace: groceries
+    labels:
+        app: grocery-celery-beat
+spec:
+    replicas: 1
+    strategy:
+        type: Recreate
+    selector:
+        matchLabels:
+            app: grocery-celery-beat
+    template:
+        metadata:
+            labels:
+                app: grocery-celery-beat
+        spec:
+            containers:
+                -   name: groc-celery-beat
+                    image: akwasi14/groceries:latest
+                    command: ["celery", "-A", "config", "beat", "--loglevel=info"]
+                    envFrom:
+                        -   configMapRef:
+                                name: groceries-django-config
+                    env:
+                        -   name: DB_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_USER
+                                    name: groceries-postgres-secret
+                        -   name: DB_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_PASSWORD
+                                    name: groceries-postgres-secret
+                    resources:
+                        limits:
+                          cpu: "500m"
+                          memory: "512Mi"
+                        requests:
+                          cpu: "200m"
+                          memory: "256Mi"

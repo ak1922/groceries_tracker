@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: groceries-web-app
+    namespace: groceries
+    labels:
+        app: groceries-web
+        tier: backend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: groceries-web
+    template:
+        metadata:
+            labels:
+                app: groceries-web
+                tier: backend
+        spec:
+            initContainers:
+                -   name: database-migration-job
+                    image: akwasi14/groceries:latest
+                    command: ["python", "manage.py", "migrate", "--noinput"]
+                    envFrom:
+                        -   configMapRef:
+                                name: groceries-django-config
+                    env:
+                        -   name: DB_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: DB_USER
+                                    name: groceries-postgres-secret
+                        -   name: DB_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: DB_PASSWORD
+                                    name: groceries-postgres-secret
+            containers:
+                -   name: groceries-web-container
+                    image: akwasi14/groceries:latest
+                    command:
+                        -   "sh"
+                        -   "-c"
+                        -   |
+                            python manage.py migrate --noinput && \
+                            python manage.py setup_site && \
+                            python manage.py setup_admin
+                            gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60
+                    ports:
+                        -   containerPort: 8000
+                    envFrom:
+                        -   configMapRef:
+                                name: groceries-django-config
+                    env:
+                        -   name: DB_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: DB_USER
+                                    name: groceries-postgres-secret
+                        -   name: DB_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: DB_PASSWORD
+                                    name: groceries-postgres-secret
+                        -   name: DJANGO_ALLOWED_HOSTS
+                            value: "kwc4.barocay.com"
+                    resources:
+                        limits:
+                            cpu: "500m"
+                            memory: "512Mi"
+                        requests:
+                            cpu: "200m"
+                            memory: "256Mi"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: groceries-webapp-service
+    namespace: groceries
+spec:
+    selector:
+        app: groceries-web
+    type: NodePort
+    ports:
+        -   port: 8000
+            protocol: TCP
+            targetPort: 8000
+            nodePort: 30210

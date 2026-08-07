@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: groceries-postgres-internal
+    namespace: groceries
+spec:
+    selector:
+        app: groceries-postgres
+    ports:
+        -   protocol: TCP
+            port: 5432
+            targetPort: 5432
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: groceries-postgres-external
+    namespace: groceries
+spec:
+    type: NodePort
+    ports:
+        -   port: 5432
+            targetPort: 5432
+            nodePort: 30351
+            protocol: TCP
+    selector:
+        app: groceries-postgres
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: groceries-postgres-pvc
+    namespace: groceries
+spec:
+    storageClassName: local-path
+    accessModes:
+        -   ReadWriteOnce
+    resources:
+        requests:
+            storage: 10G

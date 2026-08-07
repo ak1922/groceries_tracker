@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login
-from .forms import FamilySignUpForm
+from .forms import FamilySignUpForm, ProfileUpdateForm
 from .models import FamilyGroup
 from .tasks import send_registration_email
-
+from django.contrib.auth.decorators import login_required
 
 def register_view(request):
     if request.method == 'POST':
@@ -34,3 +34,17 @@ def register_view(request):
     else:
         form = FamilySignUpForm()
     return render(request, 'users/register.html', {'form': form})
+
+
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '')
+            return redirect('users:profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+    return render(request, 'users/profile.html', {'form': form})

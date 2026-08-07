@@ -55,6 +55,12 @@ DEBUG = get_env_bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
+if DEBUG:
+    SITE_URL = 'http://127.0.0.1:8000'
+    SITE_ID = 1
+else:
+    SITE_URL = 'https://kwc4.barocay.com'
+    SITE_ID = 2
 
 AUTHENTICATION_BACKENDS = [
     'users.backends.EmailOrUsernameBackend',
@@ -69,6 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'users.apps.UsersConfig',
     'shopping.apps.ShoppingConfig',
