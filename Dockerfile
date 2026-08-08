@@ -40,6 +40,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 
+RUN python manage.py collectstatic --noinput
+
 EXPOSE 8000
 
 # Standard sync worker deployment command for Gunicorn web pods
