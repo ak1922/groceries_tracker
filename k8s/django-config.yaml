@@ -5,7 +5,7 @@ metadata:
     namespace: grosns
 data:
     DEBUG: "False"
-    DB_URL: "groceries-postgres-internal"
+    DB_HOST: "groceries-postgres-internal"
     DB_PORT: "5432"
     DB_NAME: "groceries_db"
     CELERY_BROKER_URL: "redis://groceries-redis-service:6379/0"
