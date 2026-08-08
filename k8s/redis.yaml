@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: groceries-redis-cluster
-    namespace: groceries
+    namespace: grosns
 spec:
     replicas: 1
     selector:
@@ -33,11 +33,10 @@ apiVersion: v1
 kind: Service
 metadata:
     name: groceries-redis-service
-    namespace: groceries
+    namespace: grosns
 spec:
     ports:
         -   port: 6379
             targetPort: 6379
     selector:
         app: groceries-redis
-    type: ClusterIP
