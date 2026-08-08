@@ -1,10 +1,11 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-    name: groceries-postgres
-    namespace: groceries
+    name: groceries-postgres-db
+    namespace: grosns
+    labels:
+        app: groceries-postgres
 spec:
-    serviceName: groceries-postgres-internal
     replicas: 1
     selector:
         matchLabels:
@@ -15,19 +16,31 @@ spec:
                 app: groceries-postgres
         spec:
             containers:
-                -   name: groceries-postgres
-                    image: postgres:16-alpine
-                    imagePullPolicy: Always
-                    envFrom:
-                        -   secretRef:
-                                name: groceries-postgres-secret
+                -   name: gros-psql-container
+                    image: postgres:17.2
+                    ports:
+                       -    containerPort: 5432
+                            protocol: TCP
+                    env:
+                        -   name: POSTGRES_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    name: groceries-postgres-secret
+                                    key: POSTGRES_USER
+                        -   name: POSTGRES_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    name: groceries-postgres-secret
+                                    key: POSTGRES_PASSWORD
                     volumeMounts:
                         -   mountPath: /var/lib/postgresql/data
-                            name: postgresdb-storage
-                    ports:
-                        -   containerPort: 5432
-                            name: dbport
+                            name: postgres-storage
+                        -   mountPath: /docker-entrypoint-initdb.d
+                            name: init-script-volume
             volumes:
-                -   name: postgresdb-storage
+                -   name: postgres-storage
                     persistentVolumeClaim:
                         claimName: groceries-postgres-pvc
+                -   name: init-script-volume
+                    configMap:
+                        name: groceries-postgres-config

@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Secret
 metadata:
     name: groceries-postgres-secret
-    namespace: groceries
+    namespace: grosns
 type: Opaque
 stringData:
-    POSTGRES_DB: "groceries_db"
+    DJANGO_SECRET_KEY: "django-development-only-key-12345"
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "postgres"
 
@@ -15,7 +15,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
     name: groceries-postgres-config
-    namespace: groceries
+    namespace: grosns
 data:
     postgres-url: "groceries-postgres-internal"
     create_database.sql: |

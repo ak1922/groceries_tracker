@@ -2,14 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
     name: groceries-django-config
-    namespace: groceries
+    namespace: grosns
 data:
     DEBUG: "False"
-    # Matches your target production host domain natively
-    ALLOWED_HOSTS: "kwc4.barocay.com,groceries-web.djangoapps.svc.cluster.local"
-    DB_HOST: "groceries-postgres-internal.djangoapps.svc.cluster.local"
+    DB_URL: "groceries-postgres-internal"
     DB_PORT: "5432"
     DB_NAME: "groceries_db"
-    DB_USER: "postgres"
-    REDIS_HOST: "devops-redis-service.devops-utils.svc.cluster.local"
-    REDIS_PORT: "6379"
+    CELERY_BROKER_URL: "redis://groceries-redis-service:6379/0"
+    CELERY_RESULT_BACKEND: "redis://groceries-redis-service:6379/0"

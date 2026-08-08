@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
     name: groceries-postgres-internal
-    namespace: groceries
+    namespace: grosns
 spec:
     selector:
         app: groceries-postgres
@@ -17,13 +17,13 @@ apiVersion: v1
 kind: Service
 metadata:
     name: groceries-postgres-external
-    namespace: groceries
+    namespace: grosns
 spec:
     type: NodePort
     ports:
         -   port: 5432
             targetPort: 5432
-            nodePort: 30347
+            nodePort: 30348
             protocol: TCP
     selector:
         app: groceries-postgres
@@ -34,7 +34,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
     name: groceries-postgres-pvc
-    namespace: groceries
+    namespace: grosns
 spec:
     storageClassName: local-path
     accessModes:

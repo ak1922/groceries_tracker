@@ -2,10 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: groceries-web-app
-    namespace: groceries
+    namespace: grosns
     labels:
         app: groceries-web
-        tier: backend
 spec:
     replicas: 1
     selector:
@@ -15,7 +14,6 @@ spec:
         metadata:
             labels:
                 app: groceries-web
-                tier: backend
         spec:
             initContainers:
                 -   name: database-migration-job
@@ -25,15 +23,15 @@ spec:
                         -   configMapRef:
                                 name: groceries-django-config
                     env:
-                        -   name: DB_USER
+                        -   name: POSTGRES_USER
                             valueFrom:
                                 secretKeyRef:
-                                    key: DB_USER
+                                    key: POSTGRES_USER
                                     name: groceries-postgres-secret
-                        -   name: DB_PASSWORD
+                        -   name: POSTGRES_PASSWORD
                             valueFrom:
                                 secretKeyRef:
-                                    key: DB_PASSWORD
+                                    key: POSTGRES_PASSWORD
                                     name: groceries-postgres-secret
             containers:
                 -   name: groceries-web-container
@@ -52,15 +50,15 @@ spec:
                         -   configMapRef:
                                 name: groceries-django-config
                     env:
-                        -   name: DB_USER
+                        -   name: POSTGRES_USER
                             valueFrom:
                                 secretKeyRef:
-                                    key: DB_USER
+                                    key: POSTGRES_USER
                                     name: groceries-postgres-secret
-                        -   name: DB_PASSWORD
+                        -   name: POSTGRES_PASSWORD
                             valueFrom:
                                 secretKeyRef:
-                                    key: DB_PASSWORD
+                                    key: POSTGRES_PASSWORD
                                     name: groceries-postgres-secret
                         -   name: DJANGO_ALLOWED_HOSTS
                             value: "kwc4.barocay.com"
@@ -78,7 +76,7 @@ apiVersion: v1
 kind: Service
 metadata:
     name: groceries-webapp-service
-    namespace: groceries
+    namespace: grosns
 spec:
     selector:
         app: groceries-web
@@ -87,4 +85,4 @@ spec:
         -   port: 8000
             protocol: TCP
             targetPort: 8000
-            nodePort: 30210
+            nodePort: 30211
