@@ -13,6 +13,7 @@ on:
             -   'manage.py'
             -   'Dockerfile'
             -   'requirements.txt'
+            -   '.github/workflows/**'
 
 jobs:
     # Job 1: Test and validate Helm charts
