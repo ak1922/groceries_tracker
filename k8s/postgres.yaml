@@ -24,8 +24,6 @@ spec:
                     volumeMounts:
                         -   mountPath: /var/lib/postgresql/data
                             name: postgresdb-storage
-                        -   mountPath: /docker-entrypoint-initdb.d
-                            name: postgres-init-script
                     ports:
                         -   containerPort: 5432
                             name: dbport
@@ -33,6 +31,3 @@ spec:
                 -   name: postgresdb-storage
                     persistentVolumeClaim:
                         claimName: groceries-postgres-pvc
-                -   name: postgres-init-script
-                    configMap:
-                        name: groceries-postgres-config
