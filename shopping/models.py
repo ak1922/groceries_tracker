@@ -1,49 +1,26 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from django.db.models import Sum, Avg
-
-
-class ShoppingTripQuerySet(models.QuerySet):
-    """
-    Advanced analytical engine to calculate educational statistics for families.
-    """
-    def for_family(self, user):
-        """Isolates data strictly to the logged-in family cluster."""
-        return self.filter(family_group=user.family_group)
-
-    def monthly_report(self, year, month):
-        """Filters data points within a specific calendar month."""
-        return self.filter(date__year=year, date__month=month)
-
-    def total_family_investment(self):
-        """Aggregates absolute spending accumulation across all logged logs."""
-        return self.aggregate(total=Sum('total_cost'))['total'] or 0.00
-
-    def category_breakdown(self):
-        """
-        Calculates spending metrics grouped by operational categories.
-        Allows families to see exactly what percentage of their budget goes where.
-        """
-
-        # We query the related ShoppingItem table across the current trip queryset
-        return (
-            self.values('items__category')
-            .annotate(
-                total_spent=Sum(models.F('items__price') * models.F('items__quantity')),
-                average_item_cost=Avg('items__price'),
-                total_items_bought=Sum('items__quantity')
-            )
-            .order_by('-total_spent')
-        )
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+from .managers import ShoppingTripQuerySet
 
 
 class Store(models.Model):
-    name= models.CharField(max_length=100, unique=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
+
+    class StoreTypes(models.TextChoices):
+        GROCERY = 'GROCERY', 'Supermarket / Grocery'
+        WHOLESALE = 'WHOLESALE', 'Wholesale Club (Costco/Sam\'s)'
+        CONVENIENCE = 'CONVENIENCE', 'Convenience Store'
+        FARMERS = 'FARMERS', 'Farmers Market / Local Vendor'
+
+    name = models.CharField(max_length=100)
+    store_type = models.CharField(max_length=20, choices=StoreTypes.choices, default=StoreTypes.GROCERY)
+    address = models.CharField(max_length=255, blank=True, help_text="e.g., 123 Main St")
+    notes = models.TextField(blank=True, help_text="Store specific details (e.g., best place for bulk meat)")
 
     def __str__(self):
-        return self.name
+        return f'{self.name} ({self.get_store_type_display()})'
 
 
 class ShoppingTrip(models.Model):
@@ -52,6 +29,7 @@ class ShoppingTrip(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='trips')
     date = models.DateField(default=timezone.now)
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    budget_alert_threshold = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), help_text='Target spending limit for this specific trip')
     is_completed = models.BooleanField(default=False)
 
     objects = ShoppingTripQuerySet.as_manager()
@@ -61,8 +39,6 @@ class ShoppingTrip(models.Model):
 
     def __str__(self):
         return f'{self.store.name} - {self.date}'
-
-
 
 
 class ShoppingItem(models.Model):
@@ -94,12 +70,12 @@ class ShoppingItem(models.Model):
     )
 
     # Financial parameters
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, help_text="Price per single unit container")
-
-    # Educational Unit Metric Fields
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+    price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))], help_text='Price per single unit container')
     unit_type = models.CharField(max_length=3, choices=UnitTypes.choices, default=UnitTypes.PIECE)
     unit_size = models.DecimalField(max_digits=6, decimal_places=2, default=1.00, help_text="e.g., enter 16.00 for a 16oz cereal box")
+    brand = models.CharField(max_length=100, blank=True, help_text="e.g., Kirkland, Organic Valley")
+    is_essential = models.BooleanField(default=True, help_text="Uncheck for luxury/impulse purchases")
 
     def __str__(self):
         return f"{self.name} ({self.get_category_display()})"

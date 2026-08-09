@@ -15,3 +15,15 @@ def send_registration_email(user_email, username):
         recipient_list=[user_email],
         fail_silently=False
     )
+
+
+@shared_task
+def send_async_reset_email(subject, body, from_email, to_email):
+    """ Asynchronously processes and dispatches password recovery emails via Celery. """
+
+    send_mail(
+        subject,
+        body,
+        from_email,
+        [to_email], fail_silently=False
+    )

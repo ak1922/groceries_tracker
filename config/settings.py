@@ -116,7 +116,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 # Database Layout Config
-DB_NAME = os.environ.get('DB_NAME', 'groceries')
+DB_NAME = os.environ.get('DB_NAME', 'groceries_db')
 DB_USER = os.environ.get('DB_USER', 'postgres')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'postgres')
 DB_HOST = os.environ.get('DB_HOST', 'localhost')

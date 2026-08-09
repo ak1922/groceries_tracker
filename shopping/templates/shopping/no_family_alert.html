@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Configuration Pending - GroceryOps{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 text-center">
+        <div class="p-5 bg-white rounded-3 shadow-sm border-0">
+            <div class="display-1 text-warning mb-3">⚠️</div>
+            <h4 class="fw-bold text-dark">Household Connection Required</h4>
+            <p class="text-secondary small mb-4">Your user registration profile is currently active, but it has not been connected to a household family group bucket yet. Please connect with your group head administrator or access your user account settings panel to complete your profile mapping configurations.</p>
+            <a href="{% url 'index' %}" class="btn btn-primary px-4 fw-semibold shadow-sm rounded-2">Return to Homepage</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
