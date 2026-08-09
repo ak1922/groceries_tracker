@@ -43,7 +43,7 @@ spec:
                             python manage.py migrate --noinput && \
                             python manage.py setup_site && \
                             python manage.py setup_admin
-                            gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60
+                            gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 4 --timeout 60 --keep-alive 5
                     ports:
                         -   containerPort: 8000
                     envFrom:
@@ -81,6 +81,7 @@ spec:
     selector:
         app: groceries-web
     type: NodePort
+    externalTrafficPolicy: Local
     ports:
         -   port: 8000
             protocol: TCP
