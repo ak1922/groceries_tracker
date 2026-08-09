@@ -15,6 +15,8 @@ spec:
             labels:
                 app: groceries-postgres
         spec:
+            nodeSelector:
+                kubernetes.io/hostname: kwc4.barocay.com
             containers:
                 -   name: gros-psql-container
                     image: postgres:17.2
