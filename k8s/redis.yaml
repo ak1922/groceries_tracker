@@ -13,6 +13,8 @@ spec:
             labels:
                 app: groceries-redis
         spec:
+            nodeSelector:
+                kubernetes.io/hostname: kwc4.barocay.com
             containers:
                 -   name: groceries-redis-container
                     image: redis:7-alpine
