@@ -8,7 +8,7 @@ stringData:
     DJANGO_SECRET_KEY: "django-development-only-key-12345"
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "postgres"
-
+    GMAIL_APP_PASSWORD: "uecsuwjxynmmbray"
 
 ---
 apiVersion: v1
