@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: groceries-celery-worker
-    namespace: groceries
+    namespace: grosns # <-- FIXED NAMESPACE MAPPING
     labels:
         app: grocery-celery-worker
 spec:
@@ -33,6 +33,16 @@ spec:
                                 secretKeyRef:
                                     key: POSTGRES_PASSWORD
                                     name: groceries-postgres-secret
+                        -   name: SECRET_KEY
+                            valueFrom:
+                                secretKeyRef:
+                                    key: DJANGO_SECRET_KEY
+                                    name: groceries-postgres-secret
+                        -   name: EMAIL_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: GMAIL_APP_PASSWORD
+                                    name: groceries-postgres-secret
                     resources:
                         limits:
                           cpu: "500m"
@@ -46,7 +56,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: groceries-celery-beat
-    namespace: groceries
+    namespace: grosns
     labels:
         app: grocery-celery-beat
 spec:
@@ -78,6 +88,16 @@ spec:
                             valueFrom:
                                 secretKeyRef:
                                     key: POSTGRES_PASSWORD
+                                    name: groceries-postgres-secret
+                        -   name: SECRET_KEY
+                            valueFrom:
+                                secretKeyRef:
+                                    key: DJANGO_SECRET_KEY
+                                    name: groceries-postgres-secret
+                        -   name: EMAIL_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: GMAIL_APP_PASSWORD
                                     name: groceries-postgres-secret
                     resources:
                         limits:
