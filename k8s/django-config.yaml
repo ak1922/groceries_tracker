@@ -5,7 +5,8 @@ metadata:
     namespace: grosns
 data:
     DEBUG: "False"
-    ALLOWED_HOSTS: "kwc4.barocay.com,kwc4.barocay.com:30211,groceries-web-app"
+    # CLEANED: No protocol slashes, no colons inside domain roots, just crisp hosts
+    ALLOWED_HOSTS: "localhost,127.0.0.1,kwc4.barocay.com,kwc4.barocay.com:30211,groceries-web-app"
     DB_HOST: "groceries-postgres-internal"
     DB_PORT: "5432"
     DB_NAME: "groceries_db"

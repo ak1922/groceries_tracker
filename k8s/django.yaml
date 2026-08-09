@@ -15,6 +15,8 @@ spec:
             labels:
                 app: groceries-web
         spec:
+            nodeSelector:
+                kubernetes.io/hostname: kwc4.barocay.com
             initContainers:
                 -   name: database-migration-job
                     image: akwasi14/groceries:latest

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: groceries-celery-worker
-    namespace: grosns # <-- FIXED NAMESPACE MAPPING
+    namespace: grosns
     labels:
         app: grocery-celery-worker
 spec:
@@ -15,6 +15,8 @@ spec:
             labels:
                 app: grocery-celery-worker
         spec:
+            nodeSelector:
+                kubernetes.io/hostname: kwc4.barocay.com
             containers:
                 -   name: groc-celery-worker
                     image: akwasi14/groceries:latest
@@ -71,6 +73,8 @@ spec:
             labels:
                 app: grocery-celery-beat
         spec:
+            nodeSelector:
+                kubernetes.io/hostname: kwc4.barocay.com
             containers:
                 -   name: groc-celery-beat
                     image: akwasi14/groceries:latest
