@@ -1,8 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import register_view, profile_view
-from .forms import DualAuthenticationForm
-
+from .forms import DualAuthenticationForm, CeleryPasswordResetForm
 
 app_name = 'users'
 
@@ -15,7 +14,6 @@ urlpatterns = [
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='users/password_change_done.html'), name='password_change_done'),
     path('profile/', profile_view, name='profile'),
 
-    # --- ADD THESE PASSWORD RESET ENDPOINTS HERE ---
     path('password-reset/', auth_views.PasswordResetView.as_view(
         template_name='users/password_reset_form.html',
         email_template_name='users/password_reset_email.html',
@@ -37,7 +35,9 @@ urlpatterns = [
     path('password-reset/', auth_views.PasswordResetView.as_view(
         template_name='users/password_reset_form.html',
         email_template_name='users/password_reset_email.html',
-        subject_template_name='users/password_reset_subject.txt',  # <-- ADD THIS HOOK LINE HERE
+        subject_template_name='users/password_reset_subject.txt',
+        form_class=CeleryPasswordResetForm,
         success_url='/users/password-reset/done/'
     ), name='password_reset'),
+
 ]

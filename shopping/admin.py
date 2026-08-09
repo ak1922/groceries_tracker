@@ -42,7 +42,6 @@ class ShoppingTripAdmin(admin.ModelAdmin):
         return f"${obj.total_cost:.2f}"
     formatted_total_cost.short_description = 'Total Cost'
 
-    # ADD THIS METHOD HERE TO FIX THE BLANK DROPDOWN
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """
         Ensures the family group dropdown displays choices correctly in the admin view.

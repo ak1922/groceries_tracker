@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import FamilyGroup
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
+from .tasks import send_async_reset_email
+
 
 AppUser = get_user_model()
 
@@ -65,3 +66,22 @@ class ProfileUpdateForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'profile_photo': forms.FileInput(attrs={'class': 'form-control'}),
         }
+
+
+class CeleryPasswordResetForm(PasswordResetForm):
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name = None,
+    ):
+        from django.template.loader import render_to_string
+
+        body = render_to_string(email_template_name, context)
+        subject = render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())
+
+        send_async_reset_email.delay(subject, body, from_email, to_email)

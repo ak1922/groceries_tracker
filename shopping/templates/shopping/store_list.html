@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Local Vendor Directory - GroceryOps{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 bg-dark text-white rounded-3 shadow-sm d-flex justify-content-between align-items-center">
+            <div>
+                <a href="{% url 'shopping:dashboard' %}" class="btn btn-sm btn-outline-light mb-2">← Back to Console Tower</a>
+                <h3 class="fw-bold mb-0">Registered Local Vendor Directory</h3>
+            </div>
+            <a href="{% url 'shopping:dashboard' %}" class="btn btn-primary fw-semibold shadow-sm">+ Add New Store</a>
+        </div>
+    </div>
+</div>
+
+<!-- Responsive Vendor Cards Matrix Layout Grid -->
+<div class="row g-4">
+    {% for store in stores %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100 rounded-3">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold text-dark mb-0">{{ store.name }}</h5>
+                        <span class="badge bg-secondary extra-small">{{ store.get_store_type_display }}</span>
+                    </div>
+                    <p class="text-secondary small mb-3">
+                        📍 {% if store.address %}{{ store.address }}{% else %}No address saved yet.{% endif %}
+                    </p>
+                    {% if store.notes %}
+                        <div class="p-3 bg-light rounded-2 small text-muted font-monospace mb-3" style="font-size: 0.8rem;">
+                            {{ store.notes }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2 pt-2 border-top mt-auto">
+                    <a href="{% url 'shopping:store_edit' store.id %}" class="btn btn-sm btn-outline-primary fw-semibold w-50">Edit Profile</a>
+                    <a href="{% url 'shopping:store_delete' store.id %}" class="btn btn-sm btn-outline-danger fw-semibold w-50">Purge</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted small">No localized store destinations mapped to this household database network cluster yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

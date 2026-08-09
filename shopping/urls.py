@@ -1,9 +1,15 @@
 from django.urls import path
-from .views import dashboard_view  # We will map your real view function next
+from . import views
+
 
 app_name = 'shopping'
 
+
 urlpatterns = [
-    # Maps the app root path to your functional, role-based dashboard view logic
-    path('', dashboard_view, name='dashboard'),
+    path('', views.dashboard.dashboard_view, name='dashboard'),
+    path('trip/<int:pk>', views.trip_detail, name='trip_detail'),
+    path('history/', views.trip_history, name='trip_history'),
+    path('stores/', views.store_list, name='store_list'),
+    path('store/<int:pk>/edit/', views.store_edit, name='store_edit'),
+    path('store/<int:pk>/delete/', views.store_delete, name='store_delete'),
 ]

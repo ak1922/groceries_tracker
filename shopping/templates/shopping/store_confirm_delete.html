@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Vendor Purge - GroceryOps{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow rounded-3 text-center p-4">
+            <div class="card-body">
+                <div class="display-4 text-danger mb-3">🗑️</div>
+                <h4 class="fw-bold text-dark">Purge Store Listing?</h4>
+                <p class="text-secondary small mb-4">
+                    Are you absolutely sure you want to remove **"{{ store.name }}"** from your household database? This action will destroy this store's classification data profile from your active lists.
+                </p>
+                <form method="post" class="d-flex gap-2 justify-content-center">
+                    {% csrf_token %}
+                    <a href="{% url 'shopping:store_list' %}" class="btn btn-light fw-medium px-3">Cancel</a>
+                    <button type="submit" class="btn btn-danger fw-semibold px-4 shadow-sm">Confirm Permanent Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if store %}Modify Vendor Settings{% else %}Register Local Vendor{% endif %} - GroceryOps{% endblock %}
+
+{% block content %}
+<!-- Form Workspace Navigation Breadcrumb -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 bg-dark text-white rounded-3 shadow-sm d-flex justify-content-between align-items-center">
+            <div>
+                <a href="{% url 'shopping:store_list' %}" class="btn btn-sm btn-outline-light mb-2">← Back to Store Directory</a>
+                <h3 class="fw-bold mb-0">
+                    {% if store %}Update Profile: {{ store.name }}{% else %}Register Local Store Destination{% endif %}
+                </h3>
+            </div>
+            <span class="badge bg-primary px-3 py-2 fw-semibold">Configuration Studio</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Form Body Layout Matrix -->
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4 p-md-5">
+
+                <form method="post" novalidate class="needs-validation">
+                    {% csrf_token %}
+
+                    <!-- Form Row 1: Split Name & Store Classification Type -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label small fw-bold text-secondary">
+                                Store Name Location
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1 font-monospace" style="font-size: 0.8rem;">
+                                    ⚠️ {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.store_type.id_for_label }}" class="form-label small fw-bold text-secondary">
+                                Store Classification Category
+                            </label>
+                            {{ form.store_type }}
+                            {% if form.store_type.errors %}
+                                <div class="text-danger small mt-1 font-monospace" style="font-size: 0.8rem;">
+                                    ⚠️ {{ form.store_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Form Row 2: Physical Address Row mapping -->
+                    <div class="mb-4">
+                        <label for="{{ form.address.id_for_label }}" class="form-label small fw-bold text-secondary">
+                            Physical Store Address Street
+                        </label>
+                        {{ form.address }}
+                        <div class="form-text text-muted extra-small">
+                            {{ form.address.help_text|default:"Allows family members to look up physical routing locations." }}
+                        </div>
+                        {% if form.address.errors %}
+                            <div class="text-danger small mt-1 font-monospace" style="font-size: 0.8rem;">
+                                ⚠️ {{ form.address.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Row 3: Custom Textarea Shopping Notes -->
+                    <div class="mb-4">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label small fw-bold text-secondary">
+                            Custom Household Store Operational Notes
+                        </label>
+                        {{ form.notes }}
+                        <div class="form-text text-muted extra-small">
+                            {{ form.notes.help_text|default:"Add target instructions (e.g., best place for bulk meat packages, organic fruits)." }}
+                        </div>
+                        {% if form.notes.errors %}
+                            <div class="text-danger small mt-1 font-monospace" style="font-size: 0.8rem;">
+                                ⚠️ {{ form.notes.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Trigger Buttons Alignment Wrapper -->
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top mt-4">
+                        <a href="{% url 'shopping:store_list' %}" class="btn btn-light fw-medium px-4">Discard Changes</a>
+                        <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm">
+                            Save Vendor Modifications
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -33,7 +33,6 @@ RUN apk add --no-cache \
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
-# Copy entire project/codebase
 COPY . .
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -44,5 +43,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# Standard sync worker deployment command for Gunicorn web pods
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60"]
