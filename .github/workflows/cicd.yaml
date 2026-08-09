@@ -1,6 +1,7 @@
 name: Family Groceries App CICD Pipeline
 
 on:
+<<<<<<< HEAD
     push:
         branches:
             -   main
@@ -14,6 +15,12 @@ on:
             -   'Dockerfile'
             -   'requirements.txt'
             -   '.github/workflows/**'
+=======
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+>>>>>>> devbox1
 
 jobs:
     # Job 1: Test and validate Helm charts
