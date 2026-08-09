@@ -75,3 +75,4 @@ class ShoppingItemForm(forms.ModelForm):
         if quantity is not None and quantity < 1:
             raise forms.ValidationError("Item count quantity must be at least 1 unit.")
         return quantity
+
