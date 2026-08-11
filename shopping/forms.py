@@ -46,14 +46,31 @@ class ShoppingTripForm(forms.ModelForm):
 class ShoppingItemForm(forms.ModelForm):
     class Meta:
         model = ShoppingItem
-        fields = ['name', 'category', 'price', 'quantity']
+        fields = ['name', 'brand', 'category', 'price', 'quantity', 'is_essential']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Item name'}),
-            'brand': forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'e.g., Great Value'}),
-            'category': forms.Select(attrs={'class': 'form-select form-select-sm'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'step': '0.01', 'placeholder': '0.00'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'min': '1'}),
-            'is_essential': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Item name'
+            }),
+            'brand': forms.TextInput(attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'e.g., Kirkland'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'form-select form-select-sm'
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm',
+                'step': '0.01',
+                'placeholder': '0.00'
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'form-control form-control-sm',
+                'min': '1'
+            }),
+            'is_essential': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
         }
 
     def clean_name(self):

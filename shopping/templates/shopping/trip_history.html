@@ -29,6 +29,8 @@
                                 <th>Local Store Vendor</th>
                                 <th>Purchasing Buyer</th>
                                 <th>Total Bill Invoice Cost</th>
+                                <th class="text-center">Status</th> <!-- NEW INTERFACE COLUMN -->
+                                <th class="text-end">Actions Matrix</th> <!-- NEW INTERFACE COLUMN -->
                             </tr>
                         </thead>
                         <tbody>
@@ -36,16 +38,46 @@
                             <tr>
                                 <td class="text-secondary small">{{ trip.date }}</td>
                                 <td>
+                                    <!-- Dynamic parameter detail link workspace router -->
                                     <a href="{% url 'shopping:trip_detail' trip.id %}" class="fw-bold text-primary text-decoration-none">
                                         {{ trip.store.name }} →
                                     </a>
                                 </td>
                                 <td><span class="badge bg-light text-dark border">{{ trip.buyer.username }}</span></td>
                                 <td class="fw-bold text-dark">${{ trip.total_cost|floatformat:2 }}</td>
+
+                                <!-- DYNAMIC SYSTEM STATUS LOCK BADGE -->
+                                <td class="text-center">
+                                    {% if trip.is_completed %}
+                                        <span class="badge bg-success shadow-sm">🔒 Locked</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark shadow-sm">🔓 Open</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- INTERACTIVE OPERATIONS CRUD CONTROLS -->
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <!-- Toggle Lock Link Button -->
+                                        <a href="{% url 'shopping:trip_toggle' trip.id %}" class="btn btn-sm {% if trip.is_completed %}btn-outline-warning{% else %}btn-outline-success{% endif %} py-0 px-2 fw-semibold" style="font-size: 0.75rem;">
+                                            {% if trip.is_completed %}Reopen{% else %}Finalize{% endif %}
+                                        </a>
+
+                                        <!-- Only display operational editing/purging keys if the record is open -->
+                                        {% if not trip.is_completed %}
+                                            <a href="{% url 'shopping:trip_edit' trip.id %}" class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold" style="font-size: 0.75rem;">
+                                                Edit
+                                            </a>
+                                            <a href="{% url 'shopping:delete_trip' trip.id %}" class="btn btn-sm btn-outline-danger py-0 px-2 fw-semibold" style="font-size: 0.75rem;">
+                                                Purge
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-5 small">No transaction records present in this family database ledger.</td>
+                                <td colspan="6" class="text-center text-muted py-5 small">No transaction records present in this family database ledger.</td>
                             </tr>
                             {% endfor %}
                         </tbody>

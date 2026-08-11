@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Trip Workspace Inventory - GroceryOps{% endblock %}
 
 {% block content %}
@@ -13,6 +15,7 @@
             </div>
             <div class="text-end">
                 <span class="text-uppercase small text-white-50 d-block">Current Receipt Balance</span>
+                <!-- FIXED: Displays your real, live aggregated PostgreSQL cost totals -->
                 <h3 class="fw-bold text-warning mb-0">${{ trip.total_cost|floatformat:2 }}</h3>
             </div>
         </div>
@@ -28,70 +31,138 @@
 
                 <form method="post">
                     {% csrf_token %}
-                    <!-- CRITICAL REQUIRED DJANGO SECURITY MANAGEMENT TAGS -->
+
+                    <!-- CRITICAL: Tracks Django form indices safely -->
                     {{ formset.management_form }}
 
                     <div class="table-responsive">
                         <table class="table table-borderless align-middle mb-0">
                             <thead class="table-light">
                                 <tr class="small text-uppercase text-secondary">
-                                    <th style="width: 35%;">Item Name Description</th>
-                                    <th style="width: 25%;">Product Category</th>
-                                    <th style="width: 15%;">Unit Price</th>
-                                    <th style="width: 15%;">Quantity</th>
-                                    <th style="width: 10%;" class="text-center">Remove</th>
+                                    <th style="width: 25%;">Item Name Description</th>
+                                    <th style="width: 15%;">Product Brand</th> <!-- NEW ADDITION -->
+                                    <th style="width: 20%;">Product Category</th>
+                                    <th style="width: 12%;">Unit Price</th>
+                                    <th style="width: 10%;">Quantity</th>
+                                    <th style="width: 10%;" class="text-center">Essential?</th> <!-- NEW ADDITION -->
+                                    <th style="width: 8%;" class="text-center">Remove</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for form in formset %}
-                                <tr>
-                                    <!-- Embedded dynamic IDs for clean database indexing -->
-                                    {% for hidden in form.hidden_fields %}
-                                        {{ hidden }}
-                                    {% endfor %}
-
-                                    <td>
-                                        {{ form.name }}
-                                        {% if form.name.errors %}
-                                            <div class="text-danger extra-small mt-1">{{ form.name.errors.0 }}</div>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ form.category }}</td>
-                                    <td>
-                                        {{ form.price }}
-                                        {% if form.price.errors %}
-                                            <div class="text-danger extra-small mt-1">{{ form.price.errors.0 }}</div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ form.quantity }}
-                                        {% if form.quantity.errors %}
-                                            <div class="text-danger extra-small mt-1">{{ form.quantity.errors.0 }}</div>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        {% if formset.can_delete and form.instance.pk %}
-                                            <div class="form-check d-inline-block">
-                                                {{ form.DELETE }}
-                                            </div>
-                                        {% else %}
-                                            <span class="text-muted small">-</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                            {% for form in formset %}
+                            <tr>
+                                <!-- FIXED: Hidden database key inputs so changes commit to PostgreSQL -->
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
                                 {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{% url 'shopping:dashboard' %}" class="btn btn-light fw-medium">Cancel Changes</a>
-                        <button type="submit" class="btn btn-primary fw-semibold px-4 shadow-sm">Save Receipt Ledger</button>
-                    </div>
-                </form>
+                                <!-- Item Name Input -->
+                                <td>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger extra-small mt-1" style="font-size: 0.75rem;">⚠️ {{ form.name.errors.0 }}</div>
+                                    {% endif %}
+                                </td>
 
-            </div>
+                                <!-- NEW ADDITION: Product Brand Input -->
+                                <td>
+                                    {{ form.brand }}
+                                    {% if form.brand.errors %}
+                                        <div class="text-danger extra-small mt-1" style="font-size: 0.75rem;">⚠️ {{ form.brand.errors.0 }}</div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Category Selection Dropdown -->
+                                <td>{{ form.category }}</td>
+
+                                <!-- Unit Price Input -->
+                                <td>
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                        <div class="text-danger extra-small mt-1" style="font-size: 0.75rem;">⚠️ {{ form.price.errors.0 }}</div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Quantity Input -->
+                                <td>
+                                    {{ form.quantity }}
+                                    {% if form.quantity.errors %}
+                                        <div class="text-danger extra-small mt-1" style="font-size: 0.75rem;">⚠️ {{ form.quantity.errors.0 }}</div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- NEW ADDITION: Is Essential Checkbox -->
+                                <td class="text-center">
+                                    <div class="form-check d-inline-block">
+                                        {{ form.is_essential }}
+                                    </div>
+                                    {% if form.is_essential.errors %}
+                                        <div class="text-danger extra-small d-block" style="font-size: 0.75rem;">{{ form.is_essential.errors.0 }}</div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Database Row Delete Checkbox -->
+                                <td class="text-center">
+                                    {% if formset.can_delete and form.instance.pk %}
+                                        <div class="form-check d-inline-block">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted small">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FIXED: Both control buttons are placed safely INSIDE the </form> tags -->
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <button type="button" id="add-item-row-btn" class="btn btn-sm btn-outline-success fw-semibold px-3">
+                        ➕ Add New Item Row
+                    </button>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'shopping:dashboard' %}" class="btn btn-sm btn-light fw-medium">Cancel Changes</a>
+                        <button type="submit" class="btn btn-sm btn-primary fw-semibold px-4 shadow-sm">Save Receipt Ledger</button>
+                    </div>
+                </div>
+            </form> <!-- FORM CLOSES SAFELY HERE -->
         </div>
     </div>
 </div>
+</div>
+    <!-- =========================================================================
+         HIDDEN BLUEPRINT TEMPLATE: JavaScript clones this row to spawn new items
+         ========================================================================= -->
+    <div id="empty-form-template" class="d-none" aria-hidden="true">
+        <table>
+            <tbody>
+                <tr>
+                    <!-- FIXED: Includes the hidden empty form ID input required by Django -->
+                    <td>
+                        {{ formset.empty_form.id }}
+                        {{ formset.empty_form.name }}
+                    </td>
+                    <td>{{ formset.empty_form.brand }}</td>
+                    <td>{{ formset.empty_form.category }}</td>
+                    <td>{{ formset.empty_form.price }}</td>
+                    <td>{{ formset.empty_form.quantity }}</td>
+                    <td class="text-center">
+                        <div class="form-check d-inline-block">{{ formset.empty_form.is_essential }}</div>
+                    </td>
+                    <!-- NEW ADDITION: Instant client-side text link removal for unsaved rows -->
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-link text-danger p-0 js-remove-unsaved-row" style="text-decoration: none;">
+                            ✕ Remove
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Local Script Engine File Connection -->
+    <script src="{% static 'js/trip_details_rows.js' %}"></script>
+
 {% endblock %}

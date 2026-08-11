@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import ShoppingItem
+from django.db.models import Sum, F
+from .models import ShoppingItem, ShoppingTrip
 
 
 def recalculate_trip_total(trip):
@@ -9,11 +10,12 @@ def recalculate_trip_total(trip):
     """
     if not trip:
         return
+    aggregates = trip.items.aggregate(
+        calculated_total=Sum(F('price') * F('quantity'))
+    )
+    new_total = aggregates['calculated_total'] or 0.00
 
-    total = sum(item.price * item.quantity for item in trip.items.all())
-
-    trip.total_cost = total
-    trip.save(update_fields=['total_cost'])
+    ShoppingTrip.objects.filter(id=trip.id).update(total_cost=new_total)
 
 
 @receiver(post_save, sender=ShoppingItem)

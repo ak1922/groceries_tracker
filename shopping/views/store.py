@@ -8,7 +8,7 @@ from ..forms import StoreCreateForm
 @login_required
 def store_list(request):
     stores = Store.objects.all().order_by('name')
-    return render(request, 'shopping/store_list.html', {'stores': store})
+    return render(request, 'shopping/store_list.html', {'stores': stores})
 
 
 @login_required

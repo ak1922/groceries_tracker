@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Receipt Purge - GroceryOps{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow rounded-3 text-center p-4">
+            <div class="card-body">
+                <div class="display-4 text-danger mb-3">🗑️</div>
+                <h4 class="fw-bold text-dark">Purge Shopping Trip?</h4>
+                <p class="text-secondary small mb-4">
+                    Are you absolutely sure you want to permanently delete the shopping trip record to
+                    <strong class="text-dark">{{ trip.store.name }}</strong> on
+                    <strong class="text-dark">{{ trip.date }}</strong>?
+                    <span class="d-block text-danger mt-2 fw-semibold">⚠️ This will instantly destroy all associated grocery line item receipts and clear out its ${{ trip.total_cost|floatformat:2 }} ledger balance from your household analytics histories!</span>
+                </p>
+                <form method="post" class="d-flex gap-2 justify-content-center">
+                    {% csrf_token %}
+                    <a href="{% url 'shopping:dashboard' %}" class="btn btn-light fw-medium px-3">Cancel, Keep Record</a>
+                    <button type="submit" class="btn btn-danger fw-semibold px-4 shadow-sm">Confirm Permanent Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
