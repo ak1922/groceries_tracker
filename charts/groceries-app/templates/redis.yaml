@@ -1,15 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Release.Name }}-redis-cluster
+    namespace: {{ .Values.global.namespace }}
+    labels:
+        app: {{ .Release.Name }}-redis
+spec:
+    replicas: {{ .Values.redis.replicaCount }}
+    selector:
+        matchLabels:
+            app: {{ .Release.Name }}-redis
+    template:
+        metadata:
+            labels:
+                app: {{ .Release.Name }}-redis
+        spec:
+            containers:
+                -   name: redis-container
+                    image: {{ .Values.redis.image | quote }}
+                    imagePullPolicy: {{ .Values.redis.imagePullPolicy }}
+                    ports:
+                        -   containerPort: {{ .Values.redis.port }}
+                            protocol: TCP
+                    resources:
+                        requests:
+                            cpu: 100m
+                            memory: 128Mi
+                        limits:
+                            cpu: 200m
+                            memory: 250Mi
+
+
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "groceries-app.fullname" . }}
-  labels:
-    {{- include "groceries-app.labels" . | nindent 4 }}
+    name: {{ .Release.Name }}-redis-service
+    namespace: {{ .Values.global.namespace }}
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    {{- include "groceries-app.selectorLabels" . | nindent 4 }}
+    selector:
+        app: {{ .Release.Name }}-redis
+    ports:
+        -   port: {{ .Values.redis.port }}
+            targetPort: {{ .Values.redis.port }}
+            protocol: TCP

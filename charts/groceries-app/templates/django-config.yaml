@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ .Release.Name }}-django-config
+    namespace: {{ .Values.global.namespace }}
+data:
+    DEBUG: {{ .Values.webapp.debug | quote }}
+    ALLOWED_HOSTS: {{ .Values.webapp.allowedHosts | quote }}
+    DB_HOST: "{{ .Release.Name }}-postgres-internal"
+    DB_PORT: {{ .Values.webapp.dbPort | quote }}
+    DB_NAME: {{ .Values.webapp.dbName | quote }}
+    CELERY_BROKER_URL: "redis://{{ .Release.Name }}-redis-service:6379/0"
+    CELERY_RESULT_BACKEND: "redis://{{ .Release.Name }}-redis-service:6379/0"

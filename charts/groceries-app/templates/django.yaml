@@ -1,78 +1,84 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "groceries-app.fullname" . }}
-  labels:
-    {{- include "groceries-app.labels" . | nindent 4 }}
+    name: {{ .Release.Name }}-web-app
+    namespace: {{ .Values.global.namespace }}
+    labels:
+        app: {{ .Release.Name }}-web
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
-  selector:
-    matchLabels:
-      {{- include "groceries-app.selectorLabels" . | nindent 6 }}
-  template:
-    metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      labels:
-        {{- include "groceries-app.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-    spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "groceries-app.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+    replicas: {{ .Values.webapp.replicaCount }}
+    selector:
+        matchLabels:
+            app: {{ .Release.Name }}-web
+    template:
+        metadata:
+            labels:
+                app: {{ .Release.Name }}-web
+        spec:
+            nodeSelector:
+                kubernetes.io/hostname: {{ .Values.node.hostname | quote }}
+            initContainers:
+                -   name: database-migration-job
+                    image: {{ .Values.webapp.image | quote }}
+                    command: ["python", "manage.py", "migrate", "--noinput"]
+                    envFrom:
+                        -   configMapRef:
+                                name: {{ .Release.Name }}-django-config
+                    env:
+                        -   name: POSTGRES_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_USER
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: POSTGRES_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_PASSWORD
+                                    name: {{ .Release.Name }}-postgres-secret
+            containers:
+                -   name: groceries-web-container
+                    image: "{{ .Values.webapp.image }}"
+                    command:
+                        -   "sh"
+                        -   "-c"
+                        -   |
+                            python manage.py migrate --noinput && \
+                            python manage.py setup_site && \
+                            python manage.py setup_admin && \
+                            gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 4 --timeout 60 --keep-alive 5
+                    ports:
+                        -   containerPort: {{ .Values.webapp.containerPort }}
+                    envFrom:
+                        -   configMapRef:
+                                name: {{ .Release.Name }}-django-config
+                    env:
+                        -   name: POSTGRES_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_USER
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: POSTGRES_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_PASSWORD
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: DJANGO_ALLOWED_HOSTS
+                            value: {{ .Values.webapp.djangoAllowedHostsEnv | quote }}
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ .Release.Name }}-webapp-service
+    namespace: {{ .Values.global.namespace }}
+spec:
+    selector:
+        app: {{ .Release.Name }}-web
+    type: NodePort
+    externalTrafficPolicy: Local
+    ports:
+        -   port: {{ .Values.webapp.containerPort }}
+            protocol: TCP
+            targetPort: {{ .Values.webapp.containerPort }}
+            nodePort: {{ .Values.webapp.nodePort }}

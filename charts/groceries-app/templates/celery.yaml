@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Release.Name }}-celery-worker
+    namespace: {{ .Values.global.namespace }}
+    labels:
+        app: {{ .Release.Name }}-celery-worker
+spec:
+    replicas: {{ .Values.celery.worker.replicaCount }}
+    selector:
+        matchLabels:
+            app: {{ .Release.Name }}-celery-worker
+    template:
+        metadata:
+            labels:
+                app: {{ .Release.Name }}-celery-worker
+        spec:
+            containers:
+                -   name: celery-worker
+                    image: {{ .Values.webapp.image | quote }}
+                    command: ["celery", "-A", "config", "worker", "--loglevel=info"]
+                    envFrom:
+                        -   configMapRef:
+                                name: {{ .Release.Name }}-django-config
+                        -   secretRef:
+                                name: {{ .Release.Name }}-postgres-secret
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Release.Name }}-celery-beat
+    namespace: {{ .Values.global.namespace }}
+    labels:
+        app: {{ .Release.Name }}-celery-beat
+spec:
+    replicas: {{ .Values.celery.beat.replicaCount }}
+    selector:
+        matchLabels:
+            app: {{ .Release.Name }}-celery-beat
+    template:
+        metadata:
+            labels:
+                app: {{ .Release.Name }}-celery-beat
+        spec:
+            containers:
+                -   name: celery-beat
+                    image: {{ .Values.webapp.image | quote }}
+                    command: ["celery", "-A", "config", "beat", "--loglevel=info"]
+                    envFrom:
+                        -   configMapRef:
+                                name: {{ .Release.Name }}-django-config
+                        -   secretRef:
+                                name: {{ .Release.Name }}-postgres-secret

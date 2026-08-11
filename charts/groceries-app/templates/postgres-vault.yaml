@@ -1,32 +1,24 @@
-{{- if .Values.autoscaling.enabled }}
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
+apiVersion: v1
+kind: Secret
 metadata:
-  name: {{ include "groceries-app.fullname" . }}
-  labels:
-    {{- include "groceries-app.labels" . | nindent 4 }}
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: {{ include "groceries-app.fullname" . }}
-  minReplicas: {{ .Values.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
-  metrics:
-    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
-    {{- end }}
-    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
-    {{- end }}
-{{- end }}
+    name: {{ .Release.Name }}-postgres-secret
+    namespace: {{ .Values.global.namespace }}
+type:
+    Opaque
+stringData:
+    DJANGO_SECRET_KEY: {{ .Values.secrets.djangoSecretKey | quote }}
+    POSTGRES_USER: {{ .Values.secrets.postgresUser | quote }}
+    POSTGRES_PASSWORD: {{ .Values.secrets.postGresPassword | quote }}
+    GMAIL_APP_PASSWORD: {{ .Values.secrets.gmailAppToken | quote }}
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: {{ .Release.Name }}-postgres-config
+    namespace: {{ .Values.global.namespace }}
+data:
+    postgres-url: "{{ .Release.Name }}-postgres-internal"
+    create_database.sql: |
+        CREATE DATABASE groceries_db WITH OWNER postgres ENCODING 'UTF8' LC_COLLATE 'en_US.utf8' LC_CTYPE 'en_US.utf8';
