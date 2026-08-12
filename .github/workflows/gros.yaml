@@ -75,5 +75,6 @@ jobs:
                     config: .github/cr.yaml
                     skip_existing: true
                     mark_as_latest: true
+                    target_branch: gh-pages
                 env:
                     CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
