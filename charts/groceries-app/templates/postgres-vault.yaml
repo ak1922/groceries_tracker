@@ -9,8 +9,7 @@ stringData:
     DJANGO_SECRET_KEY: {{ .Values.secrets.djangoSecretKey | quote }}
     POSTGRES_USER: {{ .Values.secrets.postgresUser | quote }}
     POSTGRES_PASSWORD: {{ .Values.secrets.postGresPassword | quote }}
-    GMAIL_APP_PASSWORD: {{ .Values.secrets.gmailAppToken | quote }}
-
+    EMAIL_PASSWORD: {{ .Values.secrets.gmailAppToken | quote }}
 
 ---
 apiVersion: v1

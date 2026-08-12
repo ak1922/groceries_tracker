@@ -22,9 +22,22 @@ spec:
                     envFrom:
                         -   configMapRef:
                                 name: {{ .Release.Name }}-django-config
-                        -   secretRef:
-                                name: {{ .Release.Name }}-postgres-secret
-
+                    env:
+                        -   name: POSTGRES_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_USER
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: POSTGRES_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_PASSWORD
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: EMAIL_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: EMAIL_PASSWORD
+                                    name: {{ .Release.Name }}-postgres-secret
 
 ---
 apiVersion: apps/v1
@@ -51,5 +64,19 @@ spec:
                     envFrom:
                         -   configMapRef:
                                 name: {{ .Release.Name }}-django-config
-                        -   secretRef:
-                                name: {{ .Release.Name }}-postgres-secret
+                    env:
+                        -   name: POSTGRES_USER
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_USER
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: POSTGRES_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: POSTGRES_PASSWORD
+                                    name: {{ .Release.Name }}-postgres-secret
+                        -   name: EMAIL_PASSWORD
+                            valueFrom:
+                                secretKeyRef:
+                                    key: EMAIL_PASSWORD
+                                    name: {{ .Release.Name }}-postgres-secret
